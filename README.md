@@ -24,7 +24,7 @@ pip install 3rdparty/pypore3d
 ```
 
 ### Troubleshooting on Mac:
-There could be problems with a `libomp`, so it needed to run this command (after installation of `libomp` with brew):
+There could be problems with a `libomp`, so it is needed to run this command (after installation of `libomp` with brew):
 ```
 python setup.py build_ext --inplace --include-dirs=/opt/homebrew/Cellar/libomp/18.1.5/include
 ```
