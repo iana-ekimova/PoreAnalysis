@@ -1,9 +1,5 @@
 # Pore Analysis
 
-## About
-TODO: write about the code.
-
-
 ## Installation
 
 Clone repository and update submodules:
@@ -35,4 +31,4 @@ python setup.py build_ext --inplace --include-dirs=/opt/homebrew/Cellar/libomp/1
 
 ## Running the pore analysis
 - Change `FILE_NAME`, `VAR_NAME` and `IMAGE_SPACING` in `scripts/pore_analysis.py`
-- Run `python scripts/pore_analysis.py`
+- Run `python pore_analysis.py` from `scripts` directory

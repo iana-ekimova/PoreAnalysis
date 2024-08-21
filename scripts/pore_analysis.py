@@ -1,7 +1,7 @@
 # To run this change the following variables:
 
 # Path to the .mat file with the data
-FILE_NAME = r"../data/pictures/nestle_5_m_small.mat"
+FILE_NAME = r"../../3d-analysis/data/pictures/nestle_5_m_small.mat"
 
 # Name of the variable inside a .mat file
 VAR_NAME = ('nestle_5_small')
@@ -10,7 +10,7 @@ VAR_NAME = ('nestle_5_small')
 IMAGE_SPACING = (0.008, 0.008, 0.008)
 
 # Where the output will be stored
-data_output_folder = 'output'
+data_output_folder = '../output'
 
 
 import shutil
@@ -111,11 +111,13 @@ figure_original.canvas.mpl_connect('scroll_event', tracker_original.on_scroll)
 
 os.makedirs(data_output_folder, exist_ok=True)
 
+tmp_folder = '../tmp/'
+
 #plt.show()
 
 """Filtering small"""
-(small_mat * 255).astype("uint8").tofile("tmp.raw")
-inImg = py_p3dReadRaw8(r"tmp.raw", small_mat.shape[0], small_mat.shape[1], small_mat.shape[2])
+(small_mat * 255).astype("uint8").tofile(tmp_folder + "tmp.raw")
+inImg = py_p3dReadRaw8(tmp_folder + "tmp.raw", small_mat.shape[0], small_mat.shape[1], small_mat.shape[2])
 outImg = inImg #outImg = py_p3dMedianFilter8(inImg,400, 400, 400, width = 3 )
 #py_p3dWriteRaw8(outImg, r"test.raw", DIM_X, DIM_Y, DIM_Z)
 #print("Done")
@@ -125,10 +127,10 @@ outImg = py_p3d_Erode(outImg, DIM_X, DIM_Y, DIM_Z, kWidth = 3)
 
 # Store inverted image (will be used later)
 invert_vol(outImg, DIM_X, DIM_Y, DIM_Z)
-py_p3dWriteRaw8(outImg, r"after_erode.raw", DIM_X, DIM_Y, DIM_Z)
+py_p3dWriteRaw8(outImg, tmp_folder + "after_erode.raw", DIM_X, DIM_Y, DIM_Z)
 invert_vol(outImg, DIM_X, DIM_Y, DIM_Z)
 
-small_filtered_converted = numpy.fromfile(r"after_erode.raw", dtype=np.uint8) / 256.0
+small_filtered_converted = numpy.fromfile(tmp_folder + "after_erode.raw", dtype=np.uint8) / 256.0
 small_filtered_converted = small_filtered_converted.reshape(DIM_X, DIM_Y, DIM_Z)
 
 figure_filtered_small = plt.figure('Filtered 1')
@@ -137,7 +139,7 @@ figure_original.canvas.mpl_connect('scroll_event', tracker_filtered_small.on_scr
 
 distImg = outImg
 file_name = "data"
-distFile = data_output_folder+file_name+'_distance_field.raw'
+distFile = os.path.join(tmp_folder, file_name+'_distance_field.raw')
 
 "Apply distance field transform"
 invert_vol(distImg, DIM_X, DIM_Y, DIM_Z)
@@ -145,7 +147,7 @@ outImg16 = py_p3dChamferDT(distImg, DIM_X, DIM_Y, DIM_Z, w1 = 3, w2 = 4, w3 = 5)
 invert_vol_16(outImg16, DIM_X, DIM_Y, DIM_Z)
 py_p3dWriteRaw16(outImg16, distFile ,DIM_X, DIM_Y, DIM_Z)
 
-distMinFile = data_output_folder+file_name+'_distance_field_min'
+distMinFile = os.path.join(tmp_folder, file_name+'_distance_field_min')
 py_p3d_HMinimaFilter(distFile, distMinFile, DIM_X, DIM_Y, DIM_Z, threshold = 6)
 
 "Show after HMinimalFilter"
@@ -156,7 +158,7 @@ tracker_filtered_hmin = IndexTracker(plt.axes(), hImg)
 figure_original.canvas.mpl_connect('scroll_event', tracker_filtered_hmin.on_scroll)
 
 "Apply Watershed"
-watershed_image_path = data_output_folder+file_name+'_watershed'
+watershed_image_path = os.path.join(tmp_folder, file_name+'_watershed')
 py_p3d_WatershedSegmentation(distMinFile+".raw", watershed_image_path, DIM_X, DIM_Y, DIM_Z, level = 0, connected = False)
 
 "Show watershed image (stored as 32 bit by SITK)"
@@ -169,7 +171,7 @@ figure_original.canvas.mpl_connect('scroll_event', tracker_filtered_wsh.on_scrol
 
 "Apply mask to separate watershed regions"
 #invert_vol(image_after_erode, DIM_X, DIM_Y, DIM_Z)
-bd_img = Read_Raw("after_erode.raw", [DIM_X, DIM_Y, DIM_Z], image_spacing=IMAGE_SPACING)
+bd_img = Read_Raw(tmp_folder + "after_erode.raw", [DIM_X, DIM_Y, DIM_Z], image_spacing=IMAGE_SPACING)
 wsd_img = Read_Raw(watershed_image_path+'.raw' , [DIM_X, DIM_Y, DIM_Z], sitk.sitkUInt32, image_spacing=IMAGE_SPACING)
 
 wsd_labeled_filter = sitk.RelabelComponentImageFilter()
@@ -181,14 +183,13 @@ md_img = sitk.Mask(wsd_labeled_img, bd_img)
 bgp = sitk.BinaryGrindPeak(md_img != 0)
 #md_img = sitk.MaskNegated(md_img, bgp)
 
-md_image_path = data_output_folder+file_name
+md_image_path = os.path.join(tmp_folder, file_name)
 sitk.WriteImage(md_img, md_image_path+'.mhd')
 
 ########
 
 "Show watershed masked image (stored as 32 bit by SITK)"
 wshImg = numpy.fromfile(md_image_path + ".raw", dtype=np.uint32)
-shutil.copy(md_image_path + ".raw", os.path.join("/Users/iana/Documents/uni/3d-analysis/results", f"{VAR_NAME}_filtered.raw"))
 #wshImg = np.array((wshImg == 0) * 255, dtype=np.uint8) # Convert to binary with inversion
 wshImg = wshImg.reshape(DIM_X, DIM_Y, DIM_Z)
 figure_filtered_wsh2 = plt.figure('Masked')
@@ -272,9 +273,8 @@ df_filtered = df_sorted[df_sorted['CumulativePercentage'] >= 1.5]
 print(df_filtered)
 
 filename = f"{VAR_NAME}_fss.csv"
-output_path = os.path.join("/Users/iana/Documents/uni/3d-analysis/results", filename)
+output_path = os.path.join(data_output_folder, filename)
 df_filtered.to_csv(output_path, index=False)
 
 print(f"Data has been written to {output_path}")
 plt.show()
-exit()
