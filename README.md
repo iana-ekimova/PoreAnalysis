@@ -1,5 +1,9 @@
 # Pore Analysis
 
+## About
+TODO: write about the code.
+
+
 ## Installation
 
 Clone repository and update submodules:
@@ -19,3 +23,7 @@ Install pypore3d:
 ### Troubleshooting on Mac:
 There could be problems with a `libomp`, so it needed to run this command (after installation of libomp with brew):
 `python setup.py build_ext --inplace --include-dirs=/opt/homebrew/Cellar/libomp/18.1.5/include`
+
+## Running the pore analysis
+- Change `FILE_NAME`, `VAR_NAME` and `IMAGE_SPACING` in `scripts/pore_analysis.py`
+- Run `python scripts/pore_analysis.py`

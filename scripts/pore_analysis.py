@@ -1,3 +1,15 @@
+# To run this change the following variables:
+
+# Path to the .mat file with the data
+FILE_NAME = r"../data/pictures/nestle_5_m_small.mat"
+
+# Name of the variable inside a .mat file
+VAR_NAME = ('nestle_5_small')
+
+# Resolution of the data. All output data will be in units provided by resolution
+IMAGE_SPACING = (0.008, 0.008, 0.008)
+
+
 import shutil
 
 import numpy
@@ -25,8 +37,6 @@ import pypore3d.p3d_SITK_common_lib
 import pypore3d.p3d_SITK_read_raw
 from pypore3d.p3d_SITK_read_raw import *
 from matplotlib.colors import LinearSegmentedColormap
-
-
 
 def print_BasicStats(data):
     print("Vv: {}, Sv: {}, Mv: {}, Cv: {}".format(data.Vv, data.Sv, data.Mv, data.Cv))
@@ -84,19 +94,13 @@ class IndexTracker():
 def blob_analysis(small_mat, output):
     pass
 
-FILE_NAME = r"../data/pictures/nestle_5_m_small.mat"
-VAR_NAME = ('nestle_5_small')
-IMAGE_SPACING = (0.008, 0.008, 0.008)
-DIM_X = 400
-DIM_Y = 400
-DIM_Z = 400
-
-#FILE_NAME = r"../data/pictures/3D_GardenGourmet_21042022_first_small.mat"
-#VAR_NAME = "grayscale_image"
-
 pic_small = loadmat(FILE_NAME)
 print(pic_small.keys())
 small_mat = pic_small[VAR_NAME]
+
+DIM_X = small_mat.shape[0]
+DIM_Y = small_mat.shape[1]
+DIM_Z = small_mat.shape[2]
 
 figure_original = plt.figure('Original')
 tracker_original = IndexTracker(plt.axes(), small_mat)
