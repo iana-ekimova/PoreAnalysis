@@ -1,0 +1,7 @@
+scipy
+simpleitk
+numpy
+pandas
+matplotlib
+swig
+setuptools

@@ -1,0 +1,3 @@
+[submodule "3rdparty/pypore3d"]
+	path = 3rdparty/pypore3d
+	url = git@github.com:iana-ekimova/pypore3d.git
