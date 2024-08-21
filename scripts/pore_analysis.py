@@ -9,6 +9,9 @@ VAR_NAME = ('nestle_5_small')
 # Resolution of the data. All output data will be in units provided by resolution
 IMAGE_SPACING = (0.008, 0.008, 0.008)
 
+# Where the output will be stored
+data_output_folder = 'output'
+
 
 import shutil
 
@@ -106,6 +109,7 @@ figure_original = plt.figure('Original')
 tracker_original = IndexTracker(plt.axes(), small_mat)
 figure_original.canvas.mpl_connect('scroll_event', tracker_original.on_scroll)
 
+os.makedirs(data_output_folder, exist_ok=True)
 
 #plt.show()
 
@@ -132,7 +136,6 @@ tracker_filtered_small = IndexTracker(plt.axes(), small_filtered_converted)
 figure_original.canvas.mpl_connect('scroll_event', tracker_filtered_small.on_scroll)
 
 distImg = outImg
-data_output_folder = '/Users/iana/Documents/uni/3d-analysis/scripts'
 file_name = "data"
 distFile = data_output_folder+file_name+'_distance_field.raw'
 
